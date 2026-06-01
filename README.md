@@ -7,7 +7,7 @@ associated with the project I installed the following packages:
 
 You can install packages in Intellij IDEA from File -> Project Structure -> Platform Settings -> Packages -> + button -> Search for package -> Install package
 
-To begin run the generate_unified_library.py which will create the component librarhy in the file ocads_unified_library.py
+To begin run the generate_unified_library.py which will create the component library in the file ocads_unified_library.py
 
 A few of the components are organized into a demo app in app.py. It should run from the 
 ide run button after the component library is generated.

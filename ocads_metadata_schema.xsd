@@ -1,0 +1,2280 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE schema SYSTEM "version.dtd" [
+<!ENTITY LAX "0">
+]>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="https://ncei.noaa.gov/ocads/v4.6" xmlns:oa="https://ncei.noaa.gov/ocads/v4.6" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" elementFormDefault="qualified" targetNamespace="https://ncei.noaa.gov/ocads/v4.6" vc:minVersion="1.1">
+  <!-- NAMESPACE "&NS_HOST;/&PKG_NAME;/&VERSION;" -->
+  <!-- https://ncei.noaa.gov/ocads/v4.6 -->
+  <!-- targetNamespace="&NAMESPACE;" xmlns="&NAMESPACE;" xmlns:oa="&NAMESPACE;" -->
+  <!-- stuff for JAva code generation.  It was causing some validation complaints.
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+  xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+  xmlns:annox="http://annox.dev.java.net"
+  xmlns:xew="http://github.com/jaxb-xew-plugin"
+  jaxb:extensionBindingPrefixes="xjc annox xew" >
+   -->
+  <!--   xmlns:annox="http://annox.dev.java.net" jaxb:extensionBindingPrefixes="annox" -->
+  <!--targetNamespace="http://ncei.noaa.gov/oads/&VERSION;" 
+    targetNamespace="https://ncei.noaa.gov/ocads/v4.6" xmlns="https://ncei.noaa.gov/ocads/v4.6"
+       xmlns="&NAMESPACE;" targetNamespace="&NAMESPACE;"
+  -->
+  <!-- experiment 
+  <xs:simpleType name="decimal_value">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal"/>
+    </xs:simpleContent>
+  </xs:simpleType>
+-->
+  <xs:simpleType name="positive_decimal_value">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="dimensioned_quantity">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="units" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="positive_dimensioned_quantity">
+    <xs:simpleContent>
+      <xs:extension base="positive_decimal_value">
+        <xs:attribute name="units" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
+  <xs:simpleType name="positive_decimal">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="positive_units">
+    <xs:simpleContent>
+      <xs:extension base="positive_decimal">
+        <xs:attribute name="units" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="measured_meters">
+    <xs:simpleContent>
+      <xs:restriction base="positive_units">
+        <xs:attribute name="units" type="xs:string" fixed="meters" use="required"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="meters_type">
+    <xs:simpleContent>
+      <xs:restriction base="dimensioned_quantity">
+        <xs:attribute name="units" type="xs:string" fixed="meters" use="required"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+-->
+  <xs:complexType name="measured_value">
+    <xs:simpleContent>
+      <xs:extension base="dimensioned_quantity"/>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="positive_measured_value">
+    <xs:simpleContent>
+      <xs:extension base="positive_dimensioned_quantity"/>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="depth_m">
+    <xs:annotation>
+      <xs:documentation> Units for depth measurements. Units are meters, positive values down.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:restriction base="positive_dimensioned_quantity">
+        <xs:attribute name="units" type="xs:string" fixed="meters" use="required"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="altitude_m">
+    <xs:annotation>
+      <xs:documentation> Units for altitude measurements. Units are meters, positive values up. 
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="measured_value">
+        <!-- positive ??? -->
+        <xs:attribute name="units" type="xs:string" fixed="meters" use="required"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="flow_rate">
+    <xs:complexContent>
+      <xs:restriction base="measured_value">
+        <xs:attribute name="units" type="xs:string" fixed="liters/minute" use="required"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- 
+  <xs:complexType name="liter_volume">
+    <xs:complexContent>
+      <xs:restriction base="xs:decimal">
+        <xs:attribute name="units" type="xs:string" fixed="liters" use="required"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+ -->
+  <xs:complexType name="degrees_c_restriction">
+    <xs:complexContent>
+      <xs:restriction base="measured_value">
+        <xs:attribute name="units" type="xs:string" fixed="degrees C" use="required"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="degrees_c">
+    <xs:complexContent>
+      <xs:extension base="degrees_c_restriction"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ordered_string_element">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="index" type="xs:int" default="0"/>
+        <!-- zero-based indexing -->
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="typed_element">
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="typed_string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="typed_identifier">
+    <!-- sugar -->
+    <xs:simpleContent>
+      <xs:extension base="typed_string"> </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="value_with_unit">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="units" type="xs:Name"/>
+        <!-- controlled vocabulary ??? -->
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <!-- 
+  <xs:complexType name="standard_name">
+    <xs:sequence>
+      <xs:element name="identifier" type="xs:anyURI"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  -->
+  <xs:complexType name="general_reference">
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="4">
+        <xs:element name="doi" type="pid_reference" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="link" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="citation" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:sequence minOccurs="0" maxOccurs="1">
+          <xs:element name="name" type="xs:string" maxOccurs="1"/>
+          <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <!--  <xs:element name="related" type="general_reference"/> -->
+  <xs:complexType name="restricted_term_set">
+    <xs:sequence>
+      <xs:element name="term" type="xs:string"/>
+      <xs:element name="term_set_definition" type="xs:anyURI"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="vocabulary_item_reference">
+    <xs:sequence>
+      <xs:element name="uri" type="xs:anyURI"/>
+      <xs:element name="term" type="xs:string" minOccurs="0"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="pid_reference">
+    <xs:simpleContent>
+      <xs:extension base="xs:anyURI"/>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="typed_reference">
+    <xs:complexContent>
+      <xs:extension base="pid_reference">
+        <xs:attribute name="pid_type" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="URI_reference">
+    <xs:sequence>
+      <xs:element name="uri" type="xs:anyURI"/>
+      <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="reference_or_description">
+    <xs:choice>
+      <xs:element name="reference" type="general_reference"/>
+      <xs:element name="description" type="xs:string"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="data_reference">
+    <xs:complexContent>
+      <xs:extension base="URI_reference"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- ??? Use controled vocab reference instead?  Or maybe code from controlled vocab
+  <xs:complexType name="country">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="code" type="countries_list" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="countries_list">
+    <xs:annotation>
+      <xs:documentation> This is to be a controled list of all country codes. But updates would
+        require a new version of the schema... </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="US"/>
+    </xs:restriction>
+  </xs:simpleType>
+-->
+  <xs:complexType name="software_info">
+    <xs:sequence>
+      <xs:element name="package_name" type="xs:string"/>
+      <xs:element name="version" type="xs:string" minOccurs="0"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="longitude_180">
+    <!-- ? Do we insist on +/- 180? -->
+    <xs:restriction base="xs:decimal">
+      <xs:minExclusive value="-180.0"/>
+      <xs:maxInclusive value="180"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="latitude">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="-90.0"/>
+      <xs:maxInclusive value="90.0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="temporal_extents">
+    <xs:sequence>
+      <xs:element name="start_date" type="xs:date"/>
+      <xs:element name="end_date" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="datetime_duration">
+    <xs:sequence>
+      <xs:element name="start_time" type="xs:dateTime"/>
+      <xs:element name="end_time" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- 
+    ? Do we need to support choice here? 
+    SOCAT does.
+    single location could be represented in bounds element.
+    Support multiple spatial elements?
+    Support WKT polygons?
+  -->
+  <xs:complexType name="spatial_extents">
+    <xs:choice>
+      <xs:element name="bounds" type="spatial_bounds"/>
+      <xs:element name="site_location" type="site_location"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="spatial_bounds">
+    <xs:sequence>
+      <xs:element name="western_bound" type="longitude_180"/>
+      <xs:element name="eastern_bound" type="longitude_180"/>
+      <xs:element name="northern_bound" type="latitude"/>
+      <xs:element name="southern_bound" type="latitude"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="site_location">
+    <xs:sequence>
+      <xs:element name="longitude" type="longitude_180"/>
+      <xs:element name="latitude" type="latitude"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="altitude_range">
+    <xs:annotation>
+      <xs:documentation> Min and max altitudes in the dataaset. Positive down. </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="min_altitude" type="altitude_m"/>
+      <xs:element name="max_altitude" type="altitude_m"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="depth_range">
+    <xs:annotation>
+      <xs:documentation> Min and max depths in the dataaset. Positive down. </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="min_depth" type="depth_m"/>
+      <xs:element name="max_depth" type="depth_m"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="funding_source">
+    <xs:sequence>
+      <xs:element name="funding_agency">
+        <!-- ??? organization_ref -->
+        <!-- and/or org-ref -->
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="country" type="vocabulary_item_reference"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="project_title" type="xs:string"/>
+      <xs:element name="project_identifier" type="xs:string"/>
+      <xs:element name="project_duration" type="temporal_extents" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- It would be good if this were a controlled vocabulary. -->
+  <xs:simpleType name="observation_geometry">
+    <!-- ??? Is this a per-variable or per-dataset field? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Point"/>
+      <!-- ??? CF types.  Acceptable? -->
+      <xs:enumeration value="Timeseries"/>
+      <xs:enumeration value="Trajectory"/>
+      <!-- aka (Surface) Underway ( Does this term imply continuous sampling? ) -->
+      <xs:enumeration value="Profile"/>
+      <xs:enumeration value="Timeseries_Profile"/>
+      <!-- ??? Does this assume same sample rate for all profile vars ? -->
+      <xs:enumeration value="Trajectory_Profile"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- From v6 observation type instructions:
+    How the variable is observed, e.g., surface underway, profile, time series, model output, etc. 
+    For experimental data, this could be: laboratory experiment, pelagic mesocosm, benthic mesocosm, 
+                                          benthic FOCE type studies, natural pertubration site studies, etc
+ -->
+  <xs:simpleType name="experiment_location">
+    <!-- ??? Is this a per-variable or per-dataset field? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="lab"/>
+      <xs:enumeration value="field"/>
+      <xs:enumeration value="mesocosm"/>
+      <xs:enumeration value="natural_analogue"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="extendable">
+    <xs:union memberTypes="experiment_location xs:string"/>
+  </xs:simpleType>
+  <xs:element name="extendable" type="extendable"/>
+  <xs:simpleType name="ncei_obs_types">
+    <xs:union memberTypes="observation_geometry experiment_location"/>
+  </xs:simpleType>
+  <xs:complexType name="contact_info">
+    <xs:sequence>
+      <xs:element name="address" type="address" minOccurs="0" maxOccurs="1"/>
+      <!-- maxOccurs="unbounded" -->
+      <xs:element name="phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <!-- type="typed_string"  maxOccurs="unbounded" -->
+      <xs:element name="email" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <!-- type="typed_string"  maxOccurs="unbounded" -->
+      <xs:element name="link" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+      <!-- maxOccurs="unbounded" -->
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="address">
+    <xs:complexContent>
+      <xs:extension base="typed_element">
+        <!-- what is the address type?  I guess home/office/etc ??? -->
+        <xs:sequence>
+          <xs:element name="delivery_address" type="xs:string">
+            <xs:annotation>
+              <xs:documentation> Free text: allows multiple lines / address elements. Should
+                preserve formatting (ie new-lines) </xs:documentation>
+              <!-- This is difficult. -->
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="city" type="xs:string"/>
+          <xs:element name="administrative_area" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <!-- should we just call it "state" -->
+          <xs:element name="postal_code" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="country" type="typed_identifier"/>
+          <!-- to allow code-only ?? -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--  xmlns:annox="http://annox.dev.java.net" jaxb:extensionBindingPrefixes="annox" -->
+  <xs:annotation>
+    <xs:documentation> Element type definitions for the basic "inline-element referencing collection
+      item definition-or-PID" pattern. </xs:documentation>
+  </xs:annotation>
+  <xs:complexType name="element_reference">
+    <xs:annotation>
+      <xs:documentation>
+        An inline reference to an object instance in the object-type collection.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="role" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="object_id" type="xs:IDREF" use="required"/>
+    <xs:attribute name="object_class" type="xs:string" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="ordered_reference">
+    <xs:complexContent>
+      <xs:extension base="element_reference">
+        <xs:attribute name="index" type="xs:nonNegativeInteger" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="element_instance" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        An abstract base of an instance of an object type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="object_id" type="xs:ID" use="required"/>
+    <xs:attribute name="object_class" type="xs:string" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="instance_reference">
+    <xs:annotation>
+      <xs:documentation>
+        A concrete instance that is a reference to an online Persistent Identifier
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="element_instance">
+        <xs:sequence>
+          <xs:element name="pid" type="pid_reference"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="instance_definition" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base of a concrete instance that is a full definition of the object type
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="element_reference">
+        <xs:sequence>
+          <xs:element name="pid" type="pid_reference" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Inline reference element types -->
+  <xs:complexType name="organization_ref">
+    <xs:annotation>
+      <xs:documentation>
+        An inline organization element referencing a concrete representation in the organizations collection. 
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="element_reference">
+        <xs:attribute name="object_class" type="xs:string" fixed="Organization"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="organization" abstract="true">
+    <xs:complexContent>
+      <xs:restriction base="element_instance">
+        <xs:attribute name="object_class" type="xs:string" fixed="Organization"/>
+        <!-- include prefix? -->
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="organization_definition">
+    <xs:complexContent>
+      <xs:extension base="organization">
+        <xs:sequence>
+          <xs:element name="identifier" type="pid_reference" minOccurs="0"/>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="organization_pid">
+    <xs:complexContent>
+      <xs:extension base="organization">
+        <xs:sequence>
+          <xs:element name="identifier" type="pid_reference"/>
+          <xs:element name="description" type="xs:string" minOccurs="0"/>
+          <xs:element name="contact_info" type="contact_info" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="organization_collection">
+    <xs:sequence>
+      <xs:element name="organization" type="organization" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- Inline reference element types -->
+  <xs:complexType name="person_ref">
+    <xs:annotation>
+      <xs:documentation>
+        An inline person element referencing a concrete representation in the people collection. 
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="element_reference">
+        <xs:sequence>
+          <xs:element name="role" type="xs:string" minOccurs="0"/>
+          <xs:element name="comment" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="object_class" type="xs:string" fixed="Person"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ordered_person_ref">
+    <xs:complexContent>
+      <xs:extension base="person_ref">
+        <xs:attribute name="index" type="xs:nonNegativeInteger" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- "concrete" instances definitions -->
+  <xs:complexType name="person" abstract="true">
+    <xs:complexContent>
+      <xs:restriction base="element_instance">
+        <xs:attribute name="object_class" type="xs:string" fixed="Person"/>
+        <!-- include prefix? -->
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- xs:element name="person" type="person"/ -->
+  <!--
+  <xs:complexType name="person_def" >
+    <xs:complexContent>
+        <xs:extension base="person_repr">
+          <xs:sequence>
+            <xs:element name="name" type="person_name" />
+            <xs:element name="organization" type="organization_ref" />
+            <xs:element name="contact_info" type="contact_info" minOccurs="0" maxOccurs="1" />
+          </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  -->
+  <xs:complexType name="person_definition">
+    <xs:complexContent>
+      <xs:extension base="person">
+        <xs:sequence>
+          <xs:element name="identifier" type="typed_reference" minOccurs="0" maxOccurs="unbounded"/>
+          <!-- ??? really unbounded? Should we order / indicate primary? Alt_IDs? -->
+          <xs:element name="name" type="person_name"/>
+          <xs:element name="organization" type="organization_ref" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="contact_info" type="contact_info" minOccurs="0" maxOccurs="1"/>
+          <!-- ? multiple, with roles -->
+          <xs:element name="link" type="URI_reference" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="person_pid">
+    <xs:complexContent>
+      <xs:extension base="person">
+        <xs:sequence>
+          <xs:element name="identifier" type="pid_reference"/>
+          <xs:element name="description" type="xs:string" minOccurs="0"/>
+          <!-- XXX ??? -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--xs:element name="person_pid" type="person_pid" substitutionGroup="person"/-->
+  <xs:complexType name="person_name">
+    <xs:sequence>
+      <!-- 
+      <xs:element name="pre_title" type="xs:string" minOccurs="0"> Do we bother with all this stuff??
+        <xs:annotation>
+          <xs:documentation>
+            Dr, Ms, Hon, etc.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+       -->
+      <xs:element name="first" type="xs:string"/>
+      <xs:element name="middle" minOccurs="0" maxOccurs="1" type="xs:string"/>
+      <!-- type="ordered_string_element" maxOccurs="unbounded" -->
+      <xs:element name="last" type="xs:string"/>
+      <xs:element name="suffix" type="xs:string" minOccurs="0" maxOccurs="1">
+        <!-- We probably will want this -->
+        <xs:annotation>
+          <xs:documentation> Jr, Sr, etc. </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <!--
+       <xs:element name="post_title" type="xs:string" minOccurs="0">  See above. 
+         <xs:annotation>
+           <xs:documentation>
+             PhD, MSc, CSE, etc.
+           </xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       -->
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="researcher_roles">
+    <!-- ??? should they be defined here? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RESEARCHER"/>
+      <xs:enumeration value="INVESTIGATOR"/>
+      <xs:enumeration value="PRINCIPAL_INVESTIGATOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--xs:element name="researcher_role" type="researcher_roles" substitutionGroup="person_role"/-->
+  <xs:complexType name="person_collection">
+    <xs:sequence>
+      <xs:element name="person" type="person" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- changed/removed the pid_reference type
+  <xs:complexType name="orcid_reference">
+    <xs:annotation>
+      <xs:documentation> An ORCID persistant identifier. </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:restriction base="pid_reference">
+        <xs:attribute name="repository" fixed="ORCID"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="researcherid_reference">
+    <xs:annotation>
+      <xs:documentation> A ResearcherID persistant identifier. </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:restriction base="pid_reference">
+        <xs:attribute name="pid_type" fixed="ResearcherID"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="ocean_expert_reference">
+    <xs:annotation>
+      <xs:documentation> An OceanExpert persistant identifier. </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:restriction base="pid_reference">
+        <xs:attribute name="pid_type" fixed="OceanExpert"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="person_PID_reference">
+    <xs:annotation>
+      <xs:documentation> Extensible list of Standard Identifiers for people. </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="pid_reference"/>
+    </xs:complexContent>
+  </xs:complexType>
+ -->
+  <xs:complexType name="archival_info">
+    <xs:sequence>
+      <xs:element name="archive" type="archive_info" maxOccurs="unbounded"/>
+      <!-- include alternate repos / locations, or only primary here? -->
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="archive_info">
+    <xs:sequence>
+      <xs:element name="data_center" type="organization_ref"/>
+      <!-- ? Do we need a status element, for perhaps "submitted" or "in-process" or whatever ? -->
+      <xs:element name="archival_id" minOccurs="0" maxOccurs="1" type="xs:string"/>
+      <!-- eg accession # -->
+      <!--  This would be for NCEI accession #s
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:pattern value="[0-9]{7}" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      -->
+      <!-- from SOCAT version -->
+      <xs:element name="dataset_URL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+      <!-- But which URL? Info? Download? ??? -->
+      <xs:element name="metadata_URL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+      <!-- This should be pulled from the revision history.
+            Or at minimum be references to entries in revision history.
+      <xs:element name="date_published" type="xs:dateTime" minOccurs="0" maxOccurs="1"/> 
+      <xs:element name="initial_submission" type="submission_info"/>
+      <xs:element name="latest_revision" type="submission_info"/>
+      -->
+      <xs:element name="revision_history">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="revision" type="revision" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- xs:any minOccurs="0" maxOccurs="unbounded"/> # Why ?? -->
+    </xs:sequence>
+    <!-- socat refers to "alternative repositories ... -->
+    <xs:attribute name="primary" type="xs:boolean"/>
+  </xs:complexType>
+  <xs:complexType name="submission_info">
+    <xs:sequence>
+      <xs:element name="submitted_by" type="person_ref"/>
+      <xs:element name="submission_date" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="revision">
+    <xs:complexContent>
+      <xs:extension base="submission_info">
+        <xs:sequence>
+          <xs:element name="revision_description" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- 
+  xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+  xmlns:annox="http://annox.dev.java.net"
+  xmlns:xew="http://github.com/jaxb-xew-plugin"
+  jaxb:extensionBindingPrefixes="xjc annox xew" 
+-->
+  <!--   xmlns:annox="http://annox.dev.java.net" jaxb:extensionBindingPrefixes="annox" -->
+  <xs:complexType name="calibration_info" abstract="true"/>
+  <xs:complexType name="basic_calibration_info">
+    <xs:complexContent>
+      <xs:extension base="calibration_info">
+        <xs:sequence>
+          <xs:element name="description" type="xs:string"/>
+          <xs:element name="method_reference" type="reference_or_description" minOccurs="0"/>
+          <xs:element name="frequency" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <!-- not free text? -->
+          <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element name="last_calibration" type="calibration_event"/>
+            <xs:element name="calibration_history">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="calibration" type="calibration_event" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+          <xs:element name="calibration_certificate_info" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="calibration_event">
+    <xs:sequence>
+      <xs:element name="date" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="location" type="calibration_location" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="crm_calibration">
+    <!-- DIC and TA -->
+    <xs:complexContent>
+      <xs:extension base="basic_calibration_info">
+        <xs:sequence minOccurs="0">
+          <xs:element name="certified_reference_material" type="crm_info"/>
+          <xs:element name="reported_values_adjusted_to_crm" type="xs:boolean" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="crm_info">
+    <xs:sequence>
+      <xs:element name="manufacturer" type="xs:string"/>
+      <xs:element name="batch_number" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="standard_calibration">
+    <xs:complexContent>
+      <xs:extension base="crm_calibration"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="pH_calibration">
+    <xs:complexContent>
+      <xs:extension base="basic_calibration_info">
+        <xs:sequence>
+          <xs:element name="dye_information" type="ph_dye_info"/>
+          <xs:element name="ph_of_standards" type="xs:string"/>
+          <!-- multiple values? definition of standards? -->
+          <xs:element name="calibration_temperature" type="measured_value" minOccurs="0"/>
+          <!-- degrees C ? -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ph_dye_info">
+    <xs:sequence>
+      <xs:element name="dye_type" type="xs:string"/>
+      <xs:element name="manufacturer" type="xs:string"/>
+      <xs:element name="purified" type="xs:boolean"/>
+      <xs:element name="correction_for_unpurified_dye" type="dye_correction" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dye_correction">
+    <xs:sequence>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="method_reference" type="general_reference" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="co2_calibration">
+    <xs:complexContent>
+      <xs:extension base="basic_calibration_info">
+        <xs:sequence>
+          <xs:element name="calibration_temperature" type="measured_value" minOccurs="0"/>
+          <!-- degrees C ? -->
+          <xs:element name="standard_gases">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="gas" type="standard_gas" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="wmo_traceable" type="xs:boolean"/>
+                <!-- ??? Per gas or for all? -->
+                <xs:element name="non_zero" type="xs:nonNegativeInteger" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="standard_gas">
+    <xs:sequence>
+      <xs:element name="manufacturer" type="xs:string"/>
+      <!-- apparently this is not relevant here. Leaving it for now as optional. -->
+      <xs:element name="batch" type="xs:string" minOccurs="0"/>
+      <xs:element name="concentration" type="dimensioned_quantity"/>
+      <xs:element name="uncertainty" type="dimensioned_quantity"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="calibration_location">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FACTORY"/>
+      <xs:enumeration value="LAB"/>
+      <xs:enumeration value="FIELD"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:group name="base_instrument">
+    <xs:sequence>
+      <xs:element name="type" type="xs:string" minOccurs="0"/>
+      <xs:element name="manufacturer" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="model" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="serial" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="reference" type="URI_reference" minOccurs="0" maxOccurs="unbounded"/>
+      <!-- ??? to what? -->
+      <xs:element name="accuracy" type="dimensioned_quantity" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="precision" type="dimensioned_quantity" minOccurs="0" maxOccurs="1"/>
+      <!-- <xs:element name="uncertainty" type="dimensioned_quantity" minOccurs="0" maxOccurs="1"/> per LQ -->
+      <!--xs:any minOccurs="0" maxOccurs="unbounded"/-->
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="instrument_ref">
+    <!-- XXX not currently using instrument collection / refs. -->
+    <xs:annotation>
+      <xs:documentation> An inline instrument element referencing a concrete representation in the
+        instruments collection. </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="element_reference">
+        <xs:attribute name="object_class" type="xs:string" fixed="Instrument"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="instrument" abstract="true">
+    <xs:complexContent>
+      <xs:restriction base="element_instance">
+        <xs:attribute name="object_class" type="xs:string" fixed="Instrument"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="simple_instrument">
+    <xs:complexContent>
+      <xs:extension base="instrument">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string" minOccurs="0"/>
+          <xs:element name="type" type="xs:string" minOccurs="0"/>
+          <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        <xs:assert test="exists(name) or exists(type) or exists(description)"/>
+        <!--  java gen doesn't like this -->
+      </xs:extension>
+    </xs:complexContent>
+    <!-- <xs:assert test="exists(name) or exists(type) or exists(description)" /> -->
+  </xs:complexType>
+  <xs:complexType name="basic_instrument">
+    <xs:complexContent>
+      <xs:extension base="instrument">
+        <xs:sequence>
+          <xs:group ref="base_instrument"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="standard_instrument">
+    <xs:complexContent>
+      <xs:extension base="basic_instrument">
+        <xs:sequence>
+          <xs:element name="calibration" type="standard_calibration"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="sensor">
+    <xs:complexContent>
+      <xs:extension base="standard_instrument">
+        <xs:sequence>
+          <!--   <xs:element name="sampling_rate" type="dimensioned_quantity" minOccurs="0"/> -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="crm_instrument">
+    <xs:complexContent>
+      <xs:extension base="basic_instrument">
+        <xs:sequence>
+          <xs:element name="calibration" type="crm_calibration"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="pH_instrument">
+    <xs:complexContent>
+      <xs:extension base="basic_instrument">
+        <xs:sequence>
+          <xs:element name="calibration" type="pH_calibration"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="co2_gas_detector">
+    <xs:complexContent>
+      <xs:extension base="basic_instrument">
+        <xs:sequence>
+          <xs:element name="calibration" type="co2_calibration" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="measurement_frequency" type="positive_dimensioned_quantity"/>
+          <!-- ??? or just text ??? -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="equilibrator">
+    <!--    <xs:complexContent>
+      <xs:extension base="instrument"> -->
+    <xs:sequence>
+      <xs:element name="type" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <!-- XXX Controlled vocab -->
+      <xs:element name="volume" type="measured_value" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="vented" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="gas_flow_rate" type="flow_rate" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="water_flow_rate" type="flow_rate" minOccurs="0" maxOccurs="1"/>
+      <!-- atmospheric -->
+    </xs:sequence>
+    <!--      </xs:extension>
+    </xs:complexContent> -->
+  </xs:complexType>
+  <xs:complexType name="instrument_collection">
+    <xs:choice>
+      <xs:element name="instrument" type="instrument" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <!-- targetNamespace="https://ncei.noaa.gov/ocads/v4.6" xmlns="https://ncei.noaa.gov/ocads/v4.6" xmlns:oa="https://ncei.noaa.gov/ocads/v4.6" -->
+  <!-- NAMESPACE "&NS_HOST;/&PKG_NAME;/&VERSION;" -->
+  <!-- https://ncei.noaa.gov/ocads/v4.6 -->
+  <!-- targetNamespace="&NAMESPACE;" xmlns="&NAMESPACE;" xmlns:oa="&NAMESPACE;" -->
+  <xs:simpleType name="variable_class_types">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MEASURED"/>
+      <!-- ??? What about subjective observations? -->
+      <xs:enumeration value="DERIVED"/>
+      <!-- Calculated from other variables in dataset -->
+      <xs:enumeration value="COMPILATION">
+        <!-- compilation of observations from other datasets ??? what special information would be needed here? -->
+      </xs:enumeration>
+      <xs:enumeration value="MANIPULATION"/>
+      <xs:enumeration value="GENERATED"/>
+      <!-- Calculated by model -->
+      <xs:enumeration value="SOCIAL"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:group name="minimum_variable_fields">
+    <xs:sequence>
+      <xs:element name="standard_name" type="vocabulary_item_reference"/>
+      <!-- ?? multiple / different vocabs? 
+      <xs:element name="alt_identifier" type="vocabulary_item_reference" maxOccurs="unbounded" minOccurs="0"/> 
+      -->
+      <xs:element name="dataset_variable_name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            How the variable is identified in the dataset data file.
+            This could be, for example, the column header in a CSV 
+            or the variable name in a NetCDF file.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="long_name" type="xs:string" minOccurs="0"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:choice>
+        <xs:element name="units" type="xs:string"/>
+        <!-- preferrably from controlled vocab,  quant/qualitative?-->
+        <xs:element name="ph_scale" type="ph_scale_types"/>
+        <!-- XXX This isn't great here, because we want to be able to enforce this. -->
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+  <xs:simpleType name="ph_scale_types">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="total"/>
+      <xs:enumeration value="seawater"/>
+      <xs:enumeration value="NBS"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:group name="common_var_additional_fields">
+    <xs:sequence>
+      <xs:element name="missing_value_indicator" type="xs:string" minOccurs="0">
+        <!-- ??? Numeric? -->
+        <xs:annotation>
+          <xs:documentation>
+            Required if different from dataset:default_missing_value, 
+            or default is not specified. 
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="qc_flagging_scheme" type="reference_or_description" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Required if different from dataset:default_qc_flagging_scheme, 
+            or default is not specified. 
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="qc_flag_variable" type="xs:string" minOccurs="0"/>
+      <xs:element name="qc_steps_taken" type="xs:string" minOccurs="0"/>
+      <xs:element name="appropriate_use_quality" type="appropriate_use_quality" minOccurs="0"/>
+      <!-- Weather, Climate, Other -->
+      <xs:element name="overall_uncertainty" type="variable_uncertainty" minOccurs="0"/>
+      <xs:element name="additional_information" type="xs:string" minOccurs="0"/>
+      <xs:element name="measurement_researcher" type="person_ref" minOccurs="0"/>
+      <xs:element name="qc_researcher" type="person_ref" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="all_common_fields">
+    <xs:sequence>
+      <xs:group ref="minimum_variable_fields"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:simpleType name="sampling_type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="continuous"/>
+      <xs:enumeration value="discrete"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="sampling_type_element">
+    <xs:attribute name="type" type="sampling_type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="sampling_info">
+    <xs:complexContent>
+      <xs:extension base="sampling_type_element">
+        <xs:choice minOccurs="0">
+          <xs:element name="capture" type="discrete_var_sampling_info"/>
+          <xs:element name="intake" type="continuous_var_sampling_info"/>
+        </xs:choice>
+        <!-- java code gen does not like asserts... -->
+        <xs:assert test="                 (@type = 'discrete' and not(exists(oa:continuous))) or                  (@type = 'continuous' and not(exists(oa:discrete)))"/>
+        <!-- (not(exists(@type) and exists(ancestor::oa:measured)) or -->
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="discrete_var_sampling_info">
+    <xs:sequence>
+      <xs:element name="sample_storage" type="sample_storage" minOccurs="0"/>
+      <xs:element name="field_replicate_info" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sample_storage">
+    <xs:sequence>
+      <xs:element name="method_description" type="xs:string"/>
+      <xs:element name="container_volume" type="xs:string" minOccurs="0"/>
+      <xs:element name="seawater_volume" type="xs:string" minOccurs="0"/>
+      <xs:element name="headspace_volume" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="continuous_var_sampling_info">
+    <xs:sequence>
+      <xs:element name="location" type="xs:string"/>
+      <xs:element name="depth" type="depth_m"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="genesis_type">
+    <xs:choice>
+      <xs:element name="measured" type="measured_var_info"/>
+      <xs:element name="calculated" type="calculated_var_info"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="measured_var_info" abstract="false">
+    <xs:sequence>
+      <xs:element name="collection_method" type="xs:string"/>
+      <xs:element name="collection_instrument_type" type="xs:string"/>
+      <xs:element name="sampling" type="sampling_info"/>
+      <xs:element name="analysis_method" type="reference_or_description"/>
+      <xs:element name="deviations_from_method" type="xs:string" minOccurs="0"/>
+      <xs:element name="sensor_data_conversion" type="sensor_raw_data_conversion" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sensor_raw_data_conversion">
+    <xs:sequence>
+      <xs:element name="conversion_calculation_method" type="xs:string"/>
+      <xs:element name="conversion_software" type="software_info" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="calculation_info">
+    <xs:sequence>
+      <xs:element name="calculation_method" type="reference_or_description"/>
+      <xs:element name="parameters" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="parameter" type="calc_param" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="calc_param">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="calculated_var_info">
+    <xs:annotation>
+      <xs:documentation>
+        General info for calculated variables.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="sampling" type="sampling_type_element"/>
+      <xs:element name="calculation" type="calculation_info" minOccurs="0"/>
+      <!-- ??? break down? more specificity? -->
+      <xs:element name="sources" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="variable" type="variable_ref" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="gridded_var_info">
+  </xs:complexType>
+  <xs:simpleType name="appropriate_use_quality">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="climate"/>
+      <xs:enumeration value="weather"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="variable_uncertainty">
+    <xs:sequence>
+      <xs:element name="value" type="dimensioned_quantity"/>
+      <xs:element name="uncertainty_description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- Inline reference element types -->
+  <xs:complexType name="variable_ref">
+    <xs:annotation>
+      <xs:documentation>
+        An inline variable element referencing a concrete representation in the variables collection. 
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="object_id" type="xs:IDREF" use="required"/>
+    <xs:attribute name="object_class" type="xs:string" fixed="Variable"/>
+  </xs:complexType>
+  <xs:complexType name="variable" abstract="true">
+    <xs:complexContent>
+      <xs:restriction base="element_instance">
+        <xs:attribute name="object_class" type="xs:string" fixed="Variable"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="basic_variable">
+    <xs:annotation>
+      <xs:documentation>
+        Basic Variables are for simple variables, eq the so-called "non-measured" variables and the like.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="variable">
+        <xs:sequence>
+          <xs:group ref="minimum_variable_fields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="std_variable_base" abstract="true">
+    <!-- Note this is abstract.  Is not instantiated by itself. -->
+    <xs:complexContent>
+      <xs:extension base="basic_variable">
+        <xs:sequence>
+          <xs:element name="observation_type" type="xs:string"/>
+          <!-- ???  what will these be? DSG type? Exp type? /> -->
+          <xs:group ref="common_var_additional_fields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="insitu_variable" abstract="true">
+    <xs:complexContent>
+      <xs:extension base="std_variable_base">
+        <xs:sequence>
+          <!-- <xs:element name="sampling" type="sampling_type"/> -->
+          <xs:choice minOccurs="0">
+            <xs:element name="measured" type="measured_var_info"/>
+            <xs:element name="calculated" type="calculated_var_info"/>
+            <xs:element name="gridded" type="gridded_var_info"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="basic_measured_observation_base" abstract="true">
+    <!-- must be abstract due to quirk of xml schema -->
+    <xs:complexContent>
+      <xs:restriction base="insitu_variable">
+        <xs:sequence>
+          <xs:group ref="minimum_variable_fields"/>
+          <xs:element name="observation_type" type="xs:string"/>
+          <xs:group ref="common_var_additional_fields"/>
+          <xs:element name="measured" type="measured_var_info" minOccurs="0"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="basic_measured_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_measured_observation_base">
+        <xs:sequence>
+          <xs:element name="analysis" type="analysis_information"/>
+          <!--
+          <xs:element name="analyzing_instrument" type="standard_instrument"/>
+        -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="analysis_information">
+    <xs:sequence>
+      <xs:element name="analyzing_instrument" type="standard_instrument"/>
+      <xs:element name="method_description" type="xs:string"/>
+      <xs:element name="method_reference" type="reference_or_description" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ph_analysis_info">
+    <xs:sequence>
+      <xs:element name="analyzing_instrument" type="pH_instrument"/>
+      <xs:element name="method_description" type="xs:string"/>
+      <xs:element name="method_reference" type="reference_or_description" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="basic_calculated_observation_base">
+    <xs:complexContent>
+      <xs:restriction base="insitu_variable">
+        <xs:sequence>
+          <xs:group ref="minimum_variable_fields"/>
+          <xs:element name="observation_type" type="xs:string"/>
+          <xs:group ref="common_var_additional_fields"/>
+          <xs:element name="calculated" type="calculated_var_info"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="basic_calculated_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_calculated_observation_base"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="std_observed_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_measured_observation_base">
+        <xs:sequence>
+          <xs:element name="analysis" type="analysis_information" minOccurs="0"/>
+          <!--
+          <xs:element name="analyzing_instrument" type="standard_instrument"/>
+        -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DIC_measured">
+    <xs:complexContent>
+      <xs:extension base="basic_measured_observation_base">
+        <xs:sequence>
+          <xs:element name="analysis" type="analysis_information"/>
+          <!--
+          <xs:element name="analyzing_instrument" type="standard_instrument"/>
+        -->
+          <xs:element name="sample_preservation" type="sample_preservation" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="blank_correction" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="sample_preservation">
+    <xs:sequence>
+      <xs:element name="preservative" type="xs:string"/>
+      <xs:element name="volume" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="correction_description" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TA_measured">
+    <!-- ??? spell it out? -->
+    <xs:complexContent>
+      <xs:extension base="DIC_measured">
+        <!-- basic_observation + preservative -->
+        <xs:sequence>
+          <!-- <xs:element name="titration_type" type="xs:string"/> removed in v4.6 -->
+          <xs:element name="cell_type" type="xs:string"/>
+          <xs:element name="curve_fitting" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="pH_measured">
+    <xs:complexContent>
+      <xs:extension base="basic_measured_observation_base">
+        <xs:sequence>
+          <xs:element name="analysis" type="analysis_information"/>
+          <!--
+          <xs:element name="analyzing_instrument" type="standard_instrument"/> -->
+          <xs:element name="measurement_temperature" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="temperature_correction_method" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="ph_report_temperature" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="co2_measured_base" abstract="true">
+    <xs:complexContent>
+      <xs:extension base="basic_measured_observation_base">
+        <xs:sequence>
+          <!-- <xs:element name="analyzing_instrument" type="instrument_ref"/>  gas_detector ??? -->
+          <xs:element name="water_vapor_correction_method" type="xs:string"/>
+          <xs:element name="temperature_correction_method" type="xs:string"/>
+          <xs:element name="co2_report_temperature" type="xs:string"/>
+          <!-- at what temperature was f/pCO2 reported -->
+          <xs:element name="gas_detector" type="co2_gas_detector"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="co2_continuous_variable">
+    <xs:complexContent>
+      <xs:extension base="co2_measured_base">
+        <xs:sequence>
+          <xs:element name="equilibrator" type="equilibrator" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="co2_drying_method" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="eq_pressure_measurement" type="sensor_measurement" minOccurs="0"/>
+          <xs:element name="eq_temperature_measurement" type="sensor_measurement" minOccurs="0"/>
+          <xs:element name="atm_pressure_measurement" type="sensor_measurement" minOccurs="0"/>
+          <xs:element name="atm_co2" type="atm_co2" minOccurs="0"/>
+          <xs:element name="xco2_pco2_calculation_method" type="xs:string" minOccurs="0"/>
+          <xs:element name="pco2_fco2_calculation_method" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="co2_discrete_variable">
+    <xs:complexContent>
+      <xs:extension base="co2_measured_base">
+        <xs:sequence>
+          <xs:element name="measurement_temperature" type="measured_value"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="co2_calculated_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_calculated_observation_base"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="co2_reported_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_variable"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="sensor_measurement">
+    <xs:sequence>
+      <xs:element name="method" type="xs:string"/>
+      <xs:element name="sensor" type="sensor"/>
+      <xs:element name="sensor_location" type="xs:string"/>
+      <!-- <xs:element name="calibration" type="xs:string"/>  an actual calibration exists under sensor  -->
+      <xs:element name="comments" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="atm_co2">
+    <xs:sequence minOccurs="0">
+      <xs:element name="location" type="xs:string"/>
+      <xs:element name="height" type="altitude_m"/>
+      <xs:element name="drying_method" type="xs:string"/>
+      <xs:element name="measurement_interval" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="measured" type="xs:boolean" use="required"/>
+    <!-- Just trying out conditional validation. -->
+    <!-- java gen doesn't like this
+    <xs:assert test="(@measured = true() and oa:location != '' ) or (@measured = false() and not(exists(oa:location)))"/>
+    -->
+    <!--  saxon:message="saxon failure: " xerces:message="xerces failure: " -->
+  </xs:complexType>
+  <xs:complexType name="biological_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_variable">
+        <xs:sequence>
+          <xs:element name="biological_var_fields" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="model_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_variable">
+        <xs:sequence>
+          <xs:element name="model_var_fields" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="phys_response_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_variable">
+        <xs:sequence>
+          <xs:element name="phys_response_var_fields" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="sediment_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_variable">
+        <xs:sequence>
+          <xs:element name="additional_information" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="social_variable">
+    <xs:complexContent>
+      <xs:extension base="basic_variable">
+        <xs:sequence>
+          <xs:element name="social_var_fields" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="uniform_variable_collection">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="variable" type="variable"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="variable_list">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="basic" type="basic_variable"/>
+      <xs:element name="observed" type="std_observed_variable"/>
+      <xs:element name="DIC" type="DIC_measured"/>
+      <xs:element name="TA" type="TA_measured"/>
+      <xs:element name="pH" type="pH_measured"/>
+      <xs:element name="co2_discrete" type="co2_discrete_variable"/>
+      <xs:element name="co2_continuous" type="co2_continuous_variable"/>
+      <xs:element name="co2_reported" type="co2_reported_variable"/>
+      <xs:element name="biological_variable" type="biological_variable"/>
+      <xs:element name="model_variable" type="model_variable"/>
+      <xs:element name="phys_response_variable" type="phys_response_variable"/>
+      <xs:element name="sediment_variable" type="sediment_variable"/>
+      <xs:element name="social_variable" type="social_variable"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="full_variable_list">
+    <xs:sequence>
+      <xs:element name="basic" type="basic_variable"/>
+      <xs:element name="observed" type="std_observed_variable"/>
+      <xs:element name="calculated" type="basic_calculated_variable"/>
+      <xs:element name="DIC" type="DIC_measured"/>
+      <xs:element name="TA" type="TA_measured"/>
+      <xs:element name="pH" type="pH_measured"/>
+      <xs:element name="co2_discrete" type="co2_discrete_variable"/>
+      <xs:element name="co2_continuous" type="co2_continuous_variable"/>
+      <xs:element name="co2_reported" type="co2_reported_variable"/>
+      <xs:element name="biological_variable" type="biological_variable"/>
+      <xs:element name="model_variable" type="model_variable"/>
+      <xs:element name="phys_response_variable" type="phys_response_variable"/>
+      <xs:element name="sediment_variable" type="sediment_variable"/>
+      <xs:element name="social_variable" type="social_variable"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="generic_variables_collection">
+    <xs:sequence>
+      <xs:element name="variable" type="variable" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="variable_collection">
+    <xs:complexContent>
+      <xs:extension base="variable_list"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="dataset_metadata" type="ocean_carbon_data_metadata_document"/>
+  <xs:complexType name="ocean_carbon_data_metadata_document">
+    <xs:sequence>
+      <!-- metadata about this metadata document -->
+      <xs:element name="document_metadata" type="document_metadata">
+        <xs:annotation>
+          <xs:documentation> Metadata about the metadata document instance, ie. creation time, etc.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:group ref="dataset_base_fields">
+        <xs:annotation>
+          <xs:documentation> The base dataset metadata fields, common to all classes of datasets. </xs:documentation>
+        </xs:annotation>
+      </xs:group>
+      <!-- dataset category-specific fields 
+            - field observations
+            - experiment
+            - data product
+            - model output
+      -->
+      <!-- ?? should this be part of the <xs:choice>? # moved identifiers and platforms to top level -->
+      <xs:group ref="observations_ds_fields" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Includes observation geometry and biological subject elements.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:group>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
+            These are the specialized dataset types.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:element name="physiological_response_study" type="physiological_response_study"/>
+        <xs:element name="field_trial" type="field_trial"/>
+        <!-- NOTE: renamed from OAE study per Liqing -->
+        <xs:element name="gridded_product" type="gridded_product"/>
+        <!-- 
+          <xs:element name="compilation_product" type="compilation_product"/>
+          <xs:element name="calculated_product" type="calculated_product" /> 
+        -->
+        <xs:element name="model_output" type="model_output"/>
+        <xs:element name="sediment_study" type="sediment_study"/>
+      </xs:choice>
+      <xs:group ref="dataset_collections">
+        <xs:annotation>
+          <xs:documentation> 
+            Separate collections of the concrete representations (PID references or
+            full definitions) of the elements referenced inline. These elements (people,
+            organizations, variables, instruments) are generally first-class elements and are likely
+            to be referenced in more that one place. By having inline references to singular
+            concrete instances, we eliminate duplication of information and the possibility of
+            inconsistencies. 
+          </xs:documentation>
+        </xs:annotation>
+      </xs:group>
+      <!--  Placeholder for collections when generating dataset-only example XML.  TODO: Remove. 
+      <xs:element name="item_collections" type="xs:string"/>
+      -->
+      <!-- ??? provenance / change log / revision log -->
+    </xs:sequence>
+    <xs:attributeGroup ref="metadata_standard"/>
+  </xs:complexType>
+  <!-- ocean_carbon_data_metadata_document -->
+  <!-- end of dataset_metadata definition -->
+  <!-- END of top level schema -->
+  <xs:attributeGroup name="metadata_standard">
+    <xs:attribute name="metadata_standard" type="xs:string" use="optional" default="Ocean Carbon Metadata"/>
+    <!-- default="&STANDARD_NAME;"/> -->
+    <xs:attribute name="metadata_version" type="xs:string" use="required" fixed="v4.6"/>
+    <!-- fixed="&VERSION;"/> -->
+  </xs:attributeGroup>
+  <!-- Perhaps need to have "submission" metadata and "published" metadata -->
+  <xs:group name="dataset_base_fields">
+    <xs:annotation>
+      <xs:documentation> These are the fields and elements that are common to all (more-or-less) dataset profiles.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="doi" type="xs:anyURI" minOccurs="0"/>
+      <!-- required if available; ??? multiple DOIs? maxOccurs="unbounded"-->
+      <xs:element name="project_id" type="xs:string" minOccurs="0"/>
+      <!-- mCDR only? -->
+      <xs:element name="experiement_id" type="xs:string" minOccurs="0"/>
+      <!-- mCDR only? -->
+      <xs:element name="dataset_data_date" type="xs:dateTime" minOccurs="0"/>
+      <!-- ??? Optional -->
+      <xs:element name="dataset_metadata_date" type="xs:dateTime" minOccurs="0"/>
+      <!-- ??? Optional -->
+      <!-- replacing with simple group 
+      <xs:element name="dataset_identifiers" type="identifiers" minOccurs="0" />
+      -->
+      <xs:group ref="observation_identifiers"/>
+      <xs:choice>
+        <!-- XXX If we don't have an archival or published version of the metadata, this choice is not necessary. -->
+        <xs:element name="data_submitter" type="person_ref"/>
+        <xs:element name="archival" type="archival_info"/>
+      </xs:choice>
+      <!-- dataset contact 
+            - person or organization
+              + contact info
+                - email - req'd ?? enforceable in schema??
+      -->
+      <xs:element name="dataset_contact" minOccurs="0">
+        <!-- ? responsible_party ? -->
+        <xs:complexType>
+          <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="person" type="person_ref"/>
+            <xs:element name="organization" type="organization_ref"/>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+      <!-- data provider / credited organization -->
+      <xs:element name="data_provider" type="organization_ref" minOccurs="0"/>
+      <!-- researchers REMOVED per LQ
+      <xs:element name="investigators">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="investigator" type="person_ref" minOccurs="1" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      -->
+      <!-- author list -->
+      <xs:element name="cited_authors">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="author" type="ordered_person_ref" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- primary archive information
+            - accession #
+            - archive / data center
+            - dataset URL
+            - metadata URL - opt
+            - published date 
+            - latest revision date - opt
+            ? Do we include all repositories / archives here?
+      -->
+      <!-- 
+        ? original submitter or latest revision? 
+        ? what about submissions to alternate repositories?
+        
+        This is another place where we perhaps need both "submission" and "published" metadata profile.
+      -->
+      <!-- title -->
+      <xs:element name="dataset_title" type="xs:string"/>
+      <xs:element name="dataset_description" type="xs:string"/>
+      <!-- formerly: abstract -->
+      <xs:element name="dataset_purpose" type="xs:string" minOccurs="0"/>
+      <!-- data license -->
+      <!-- ??? Mulitiple licenses?  Curated "approved" list? -->
+      <xs:element name="data_license" type="typed_element" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="fair_use_request" type="xs:string" minOccurs="0"/>
+      <!-- ??? name? -->
+      <xs:element name="dataset_type" type="dataset_types" maxOccurs="1"/>
+      <xs:element name="dataset_data_type" type="dataset_data_types"/>
+      <!-- geometries will be at the variable level. <xs:element name="observation_type" type="dataset_observation_types"/> <!-X- ??? repeatable? -->
+      <!-- At the variable level.  <xs:element name="sampling" type="sampling_type"/>  <!-X- ??? repeatable? -->
+      <xs:element name="mcdr" type="xs:boolean" minOccurs="0"/>
+      <!-- absence equals "false" -->
+      <xs:element name="data_coverage" type="data_coverage_extents"/>
+      <xs:element name="geographic_names" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
+            references to the controlled vocab @ https://vocab.nerc.ac.uk/collection/C16/current/ 
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="vocabulary_item_reference" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="sections" minOccurs="0">
+        <!-- ??? Is there a controlled list for this? -->
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="section" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- platforms -->
+      <xs:element name="platforms" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="platform" type="platform" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- funding sources -->
+      <xs:element name="funding" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="funding_source" type="funding_source" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- research project(s?) ??? No more research projects -->
+      <xs:element name="research_projects" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <!-- ??? What information is needed to reference a research project? -->
+            <xs:element name="project" type="research_project" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- publications -->
+      <xs:element name="publications" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="publication" type="general_reference" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- related datasets -->
+      <!-- ? what constitutes related? 
+             "other datasets collected from the same expedition"
+        -->
+      <xs:element name="related_datasets" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="dataset" type="general_reference" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- May be over-ridden by per-variable values  -->
+      <xs:element name="default_qc_flagging_scheme" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <!-- removed by Liqing 
+      <xs:element name="default_qc_variable_naming_scheme" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      -->
+      <xs:element name="default_missing_value_indicator" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <!-- ?? double? For non-ascii files. -->
+      <!-- supplemental information -->
+      <xs:element name="supplemental_information" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="keywords" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="keyword" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <!-- end of dataset base fields -->
+  <!-- FWIW, I don't fully agree with this set of terms. -->
+  <xs:simpleType name="dataset_types">
+    <!-- XXX consitent capitalization acros enums, constant values (ie no spaces)? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Individual"/>
+      <!-- Original Dataset"/-->
+      <xs:enumeration value="Data Compilation"/>
+      <!-- Product"/-->
+      <xs:enumeration value="Gridded Product"/>
+      <!-- xs:enumeration value="Experiment" / -->
+      <!-- xs:enumeration value="Model Output" / -->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="dataset_data_types">
+    <!-- XXX consitent capitalization across enums, constant values (ie no spaces?) (and elsewhere) -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Natural"/>
+      <!-- in-situ measurements"/-->
+      <xs:enumeration value="Manipulated"/>
+      <!-- values"/> <!-X- Experiments? -->
+      <!-- could a dataset (experiment) include both insitu and manipulated values? -->
+      <xs:enumeration value="Model Output"/>
+      <xs:enumeration value="Social"/>
+      <!-- ??? -->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="dataset_observation_types">
+    <xs:annotation>
+      <xs:appinfo>
+        I suppose this will be an "extensible currated list", 
+        which in turn will be a subclass of controlled vocabulary 
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <!-- still arguing over what should go here. -->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="data_coverage_extents">
+    <xs:sequence>
+      <xs:element name="temporal_extents" type="temporal_extents"/>
+      <xs:element name="geospatial_extents" type="spatial_extents"/>
+      <!--  maxOccurs="unbounded" -->
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <!-- Perhaps we may need both? -->
+        <xs:element name="depth_extents" type="depth_range"/>
+        <xs:element name="altitude_extents" type="altitude_range"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <!--  <xs:complexType name="identifiers"> -->
+  <xs:group name="observation_identifiers">
+    <!-- alternatively:
+        <xs:element name="dataset_identifier" type="typed_identifier" minOccurs=1, maxOccurs="unbounded" />
+		-->
+    <xs:sequence>
+      <xs:element name="expocodes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="expocode" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="cruise_ids" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="cruise_id" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <!-- removing per LQ
+			<xs:element name="station_ids" minOccurs="0" maxOccurs="1"> 
+				<xs:complexType>
+				<xs:sequence>
+					<xs:element name="station_id" type="xs:string" maxOccurs="unbounded"/>
+				</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="transect_ids" minOccurs="0" maxOccurs="1"> 
+				<xs:complexType>
+				<xs:sequence>
+					<xs:element name="transect_id" type="xs:string" maxOccurs="unbounded"/>
+				</xs:sequence>
+				</xs:complexType>
+      </xs:element>
+      -->
+      <!-- mCDR identifiers.  Moved to top-level. Optional.  
+			<xs:element name="project_id" type="xs:string" minOccurs="0"/>  
+			<xs:element name="experiment_id" type="xs:string" minOccurs="0"/>
+      -->
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="platform">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="identifier" type="typed_identifier"/>
+      <!-- ??? More than one?  ??? specialized allowable platform identifier types? -->
+      <xs:element name="type" type="platform_type"/>
+      <!-- controlled vocab? -->
+      <xs:element name="owner" type="xs:string"/>
+      <!-- and/or org-ref ? -->
+      <xs:element name="country" type="vocabulary_item_reference"/>
+      <!-- controlled vocab -->
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="platform_type">
+    <xs:restriction base="xs:string">
+      <!-- XXX TODO Same deal as other "controlled vocabs" : enum or PID to external vocab -->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="research_project">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="organization" type="organization_ref" minOccurs="0"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="url" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="observations_ds_fields">
+    <!-- sampling ??? Could there be different sampling modalities (both discrete and continuous) in a dataest? -->
+    <!-- observation (eg DSG) type ???  Could this be relevant to non-observational data ??? 
+         ??? Could there be more than one observation type in a dataset? -->
+    <xs:sequence>
+      <xs:element name="observation_geometry" type="observation_geometry" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            If uniform.  Otherwise in variable.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:group ref="biological_ds_fields" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <!-- biological -->
+  <xs:group name="biological_ds_fields">
+    <xs:sequence>
+      <xs:element name="biological_subjects" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="subject" type="biological_subject" maxOccurs="unbounded"/>
+            <!-- TODO: controlled vocabulary -->
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:simpleType name="biological_life_stage">
+    <!-- ??? too restrictive? Free text?  Extensible? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="egg"/>
+      <xs:enumeration value="embryo"/>
+      <xs:enumeration value="larva"/>
+      <xs:enumeration value="juvenile"/>
+      <xs:enumeration value="adult"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="biological_subject">
+    <xs:sequence>
+      <xs:element name="organism_description" type="xs:string"/>
+      <!-- just desription? -->
+      <xs:element name="species_identifier" type="typed_identifier"/>
+      <!-- ??? more specifc? -->
+      <xs:element name="life_stage" type="biological_life_stage"/>
+      <!-- ??? too restrictive? -->
+      <xs:element name="collection_location" minOccurs="0" maxOccurs="1"/>
+      <!-- ??? Is this repeatable? -->
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="sediment_group">
+    <!-- "special use only" -->
+    <xs:sequence>
+      <xs:element name="sediment_floor_setting" type="sediment_floor_setting"/>
+      <xs:element name="sediment_type" type="xs:string" minOccurs="0"/>
+      <xs:element name="sediment_sampling_method" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="experiment_ds_fields">
+    <xs:sequence>
+      <!-- xs:element name="experiment_id" type="xs:string"/> # moved to top-level (optional) field -->
+      <xs:element name="experiment_description" type="xs:string"/>
+      <!-- "manipulation method" -->
+    </xs:sequence>
+  </xs:group>
+  <xs:simpleType name="mcdr_pathways">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ocean alkalinity enhancement"/>
+      <xs:enumeration value="macroalgal cultivation for CDR"/>
+      <xs:enumeration value="direct ocean capture"/>
+      <xs:enumeration value="ocean fertilization"/>
+      <xs:enumeration value="artificial upwelling and downwelling"/>
+      <xs:enumeration value="other"/>
+      <!-- XXX triggers value entry in UI ? -->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="oae_treatment_types">
+    <!-- ??? plus "other" as above? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="electrochemical alkalinity addition"/>
+      <xs:enumeration value="mineral alkalinity addition"/>
+      <xs:enumeration value="dissolved alkalinity addition"/>
+      <xs:enumeration value="river alkalinity addition"/>
+      <xs:enumeration value="coastal enhanced weathering"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:group name="mcdr_ds_fields">
+    <xs:sequence>
+      <xs:element name="mcdr_pathway" type="mcdr_pathways"/>
+      <xs:element name="oae_treatment_type" type="oae_treatment_types" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="field_trials_ds_fields">
+    <xs:sequence>
+      <!-- xs:element name="project_id" type="xs:string"/> # moved to top level (optional) field -->
+      <xs:group ref="experiment_ds_fields"/>
+      <xs:group ref="mcdr_ds_fields"/>
+      <xs:element name="phase" type="experiment_phase"/>
+      <xs:element name="site_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="previous_mcdr_research_in_the_area" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="co-located_operations" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="meteorological_and_tidal_conditions" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="alkalinity_feedstock_type" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="alkalinity_feedstock_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_location" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_depth" type="depth_m" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_duration" type="datetime_duration" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_mechanism" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_effluent_density" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_regimen" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="dosing_rate_data" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="total_alkalinity_feedstock_added" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="permits" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="permit" type="permit_information" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="data_conflicts_and_unreported_data" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="additional_details" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="permit_information">
+    <xs:sequence>
+      <xs:element name="number" type="xs:string"/>
+      <xs:element name="document" type="URI_reference" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="permitting_authority" type="xs:string"/>
+      <!-- ??? Organization (concrete?) -->
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="experiment_phase">
+    <!-- ??? Will there potentially be several in same dataset? -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="baseline"/>
+      <xs:enumeration value="intervention"/>
+      <xs:enumeration value="control"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:group name="manipulation_response_ds_fields">
+    <xs:sequence>
+      <xs:group ref="experiment_ds_fields"/>
+      <!-- LQ insists this should be at the top level...
+      <xs:group ref="biological_ds_fields"/>
+      -->
+      <xs:element name="site_description" type="experiment_location"/>
+      <!-- "location where experiment ..." -->
+      <xs:element name="targeted_acidity_or_alkalinity_levels" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="seawater_source" type="seawater_source"/>
+      <xs:element name="seawater_treatment" type="seawater_treatment"/>
+      <xs:element name="manipulation_method" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <!-- site_description
+      <xs:element name="experiment_location" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      -->
+      <xs:element name="treatment_duration" type="datetime_duration" maxOccurs="1"/>
+      <!-- ??? Should this be just a date_duration -->
+      <xs:element name="additional_details" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:simpleType name="seawater_treatment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="filtered"/>
+      <xs:enumeration value="sterilized"/>
+      <xs:enumeration value="UVed"/>
+      <xs:enumeration value="other"/>
+      <xs:enumeration value="none"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="seawater_source">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="natural"/>
+      <xs:enumeration value="artificial"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="data_product">
+    <xs:sequence>
+      <xs:element name="data_sources" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="source" type="data_reference" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="field_trial">
+    <xs:annotation>
+      <xs:documentation> 
+        Fields relating to in-situ studies.
+        Renamed from oae_enhancement_study per Liqing.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:group ref="field_trials_ds_fields"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="physiological_response_study">
+    <xs:annotation>
+      <xs:documentation> 
+        Fields relating to datasets of physiological manipulation / response studies. 
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:group ref="manipulation_response_ds_fields"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sediment_study">
+    <xs:sequence>
+      <xs:element name="sediment_floor_setting" type="sediment_floor_setting"/>
+      <xs:element name="sediment_type" type="sediment_type"/>
+      <xs:element name="sediment_sampling_method" type="sediment_sampling_method"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="sediment_floor_setting">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="River"/>
+      <xs:enumeration value="Estuary"/>
+      <xs:enumeration value="Continental Shelf"/>
+      <xs:enumeration value="Slope"/>
+      <xs:enumeration value="Abyssal Plain"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="sediment_type">
+    <!-- TODO: Should be "extensible list" -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Mud"/>
+      <xs:enumeration value="Clay"/>
+      <xs:enumeration value="Silt"/>
+      <xs:enumeration value="Sand"/>
+      <xs:enumeration value="Gravel"/>
+      <xs:enumeration value="Ooze"/>
+      <xs:enumeration value="Mixed"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="sediment_sampling_method">
+    <!-- TODO: Should be "extensible list" -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Core"/>
+      <xs:enumeration value="Grab"/>
+      <xs:enumeration value="Dredging"/>
+      <xs:enumeration value="Drilling"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="compilation_product">
+    <xs:complexContent>
+      <xs:extension base="data_product">
+        <xs:sequence>
+          <xs:element name="data_quality_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <!-- LK -->
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="gridded_product">
+    <!-- ??? Anything here? -->
+    <xs:complexContent>
+      <xs:extension base="data_product">
+        <xs:sequence>
+          <xs:element name="grid_resolution" type="grid_resolution"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="calculated_product">
+    <!-- LK -->
+    <xs:complexContent>
+      <xs:extension base="data_product">
+        <xs:sequence>
+          <xs:element name="calculation_method_reference" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="calculation_method_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="model_output">
+    <xs:sequence>
+      <xs:element name="model_name" type="xs:string"/>
+      <xs:element name="model_version" type="xs:string"/>
+      <xs:element name="physics_component_name_and_version" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="bgc_component_name_and_version" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <!-- Removed
+      <xs:element name="modelled_region" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <!-x- remove this?  It's included in the top-level fields -x->
+            <xs:element name="spatial_bounds" type="spatial_bounds"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      -->
+      <xs:element name="grid_resolution" type="grid_resolution" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="input_data_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="output_data_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="model_configuration" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="boundary_conditions" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="atmospheric_forcing" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="tidal_forcing" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="other_model_forcing_details" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="river_and_sediment_flux_details" type="reference_or_description" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="spin_up_protocol" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="description_of_acid_or_alkalinity_addition" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="codebase_link" type="URI_reference"/>
+      <xs:element name="additional_details" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="grid_resolution">
+    <!-- ??? Should these be more contrained? Units?-->
+    <xs:sequence>
+      <xs:element name="longitudinal_resolution" type="xs:string"/>
+      <xs:element name="latitudinal_resolution" type="xs:string"/>
+      <xs:element name="vertical_resolution" type="xs:string"/>
+      <xs:element name="temporal_resolution" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="dataset_collections">
+    <xs:sequence>
+      <xs:element name="variables" type="variable_collection"/>
+      <!-- (NOT) putting intruments into the variables.  One less reference... XXX But do we ever share instruments?  Probably...  -->
+      <xs:element name="instruments" type="instrument_collection"/>
+      <xs:element name="people" type="person_collection"/>
+      <xs:element name="organizations" type="organization_collection"/>
+    </xs:sequence>
+  </xs:group>
+  <!-- element types -->
+  <xs:complexType name="document_metadata">
+    <xs:annotation>
+      <xs:documentation> Metadata about *this* metadata document. </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="document_date" type="xs:dateTime"/>
+      <xs:element name="document_source" type="organization_ref">
+        <!-- ??? And/Or Person -->
+        <xs:annotation>
+          <xs:documentation> The organization that produced *this* metadata document.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="comment" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- XXX Have to break down all the parts, and for different types of citations... 
+  <xs:complexType name="dataset_citation">
+    <xs:sequence>
+      <xs:element name="DOI" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="title" type="xs:normalizedString"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="authors">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="author" type="person_ref" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="publication" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  -->
+  <!-- collection wrapper elements
+  <xs:complexType name="related_data_collection">
+    <xs:sequence>
+      <xs:element name="dataset" type="related_data" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="person_collection">
+    <xs:sequence>
+      <xs:element name="person" type="person" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="investigators_collection">
+    <xs:sequence>
+      <xs:element name="investigator" type="person" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="geographic_region_name_collection">
+    <xs:sequence>
+      <xs:element name="region" type="xs:string" maxOccurs="unbounded" /> <!-X- TODO: controlled vocabulary -X->
+    </xs:sequence>
+  </xs:complexType> -->
+</xs:schema>

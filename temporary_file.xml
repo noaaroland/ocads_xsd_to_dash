@@ -1,0 +1,138 @@
+<ns0:dataset_metadata xmlns:ns0="https://ncei.noaa.gov/ocads/v4.6" metadata_version="v4.6">
+    <ns0:organizations>
+        <ns0:organization object_id="ID_909EDC87">
+            <ns0:organization_definition>
+                <ns0:name>Cool University</ns0:name>
+                <ns0:description>The coolest</ns0:description>
+            </ns0:organization_definition>
+        </ns0:organization>
+        <ns0:organization object_id="ID_C35325F7">
+            <ns0:organization_definition>
+                <ns0:name>Fabulous U</ns0:name>
+                <ns0:description>A university made of fabulousness</ns0:description>
+            </ns0:organization_definition>
+        </ns0:organization>
+        <ns0:organization object_id="ID_CA91021F">
+            <ns0:organization_definition>
+                <ns0:name>Average State University</ns0:name>
+                <ns0:description>Just right in the middle there.</ns0:description>
+            </ns0:organization_definition>
+        </ns0:organization>
+        <ns0:organization object_id="ID_3BADDC47">
+            <ns0:organization_definition>
+                <ns0:name>Hogwarts</ns0:name>
+                <ns0:description>Magic School</ns0:description>
+            </ns0:organization_definition>
+        </ns0:organization>
+    <ns0:organization object_id="ID_0A2C6BBB"><ns0:organization_definition><ns0:name>Washington State</ns0:name><ns0:description>A state university</ns0:description></ns0:organization_definition></ns0:organization></ns0:organizations>
+    <ns0:document_metadata object_id="doc_root">
+        <ns0:document_date>2026-05-27T10:26</ns0:document_date>
+        <ns0:document_source object_id="ID_0A2C6BBB" />
+        <ns0:comment>We are fabulous too</ns0:comment>
+    </ns0:document_metadata>
+    <ns0:expocodes>
+        <ns0:expocode row_token="9DC715">EXPO20010909</ns0:expocode>
+        <ns0:expocode row_token="BBE101">EXPO20260527</ns0:expocode>
+    </ns0:expocodes>
+    <ns0:cruise_ids>
+        <ns0:cruise_id row_token="304BE1">CID009</ns0:cruise_id>
+        <ns0:cruise_id row_token="9EABBE">VALPARASO001</ns0:cruise_id>
+    </ns0:cruise_ids>
+    <ns0:people>
+        <ns0:person object_id="ID_154610B3">
+            <ns0:name>
+                <ns0:first>Joe</ns0:first>
+                <ns0:middle>H</ns0:middle>
+                <ns0:last>Cool</ns0:last>
+                <ns0:suffix>ESQ</ns0:suffix>
+            </ns0:name>
+            <ns0:person_definition>
+                <ns0:organization__ref>ID_909EDC87</ns0:organization__ref>
+            </ns0:person_definition>
+            <ns0:address>
+                <ns0:delivery_address>100 Cool St</ns0:delivery_address>
+                <ns0:city>Miami</ns0:city>
+                <ns0:administrative_area>FL</ns0:administrative_area>
+                <ns0:postal_code>30144</ns0:postal_code>
+            </ns0:address>
+            <ns0:contact_info>
+                <ns0:phone>909-888-1234</ns0:phone>
+                <ns0:email>joe@cool.edu</ns0:email>
+                <ns0:link>https://cool.edu</ns0:link>
+            </ns0:contact_info>
+        </ns0:person>
+        <ns0:person object_id="ID_E9ACF5F4">
+            <ns0:name>
+                <ns0:first>Jane</ns0:first>
+                <ns0:middle>B</ns0:middle>
+                <ns0:last>Super</ns0:last>
+                <ns0:suffix>PhD</ns0:suffix>
+            </ns0:name>
+            <ns0:person_definition>
+                <ns0:organization__ref>ID_C35325F7</ns0:organization__ref>
+            </ns0:person_definition>
+            <ns0:address>
+                <ns0:delivery_address>900 Fab Blvd</ns0:delivery_address>
+                <ns0:city>Johnson City</ns0:city>
+                <ns0:administrative_area>TX</ns0:administrative_area>
+                <ns0:postal_code>87009</ns0:postal_code>
+            </ns0:address>
+            <ns0:contact_info>
+                <ns0:phone>518-994-0044</ns0:phone>
+                <ns0:email>jane@fabu.edu</ns0:email>
+                <ns0:link>https://fabu.edu</ns0:link>
+            </ns0:contact_info>
+        </ns0:person>
+        <ns0:person object_id="ID_BACC2957">
+            <ns0:name>
+                <ns0:first>Harry</ns0:first>
+                <ns0:middle>J</ns0:middle>
+                <ns0:last>Potter</ns0:last>
+                <ns0:suffix>Wz</ns0:suffix>
+            </ns0:name>
+            <ns0:person_definition>
+                <ns0:organization__ref>ID_3BADDC47</ns0:organization__ref>
+            </ns0:person_definition>
+            <ns0:address>
+                <ns0:delivery_address>1 Owl Lane</ns0:delivery_address>
+                <ns0:city>Hogwarts Ville</ns0:city>
+                <ns0:administrative_area>Magic</ns0:administrative_area>
+                <ns0:postal_code>00001</ns0:postal_code>
+            </ns0:address>
+            <ns0:contact_info>
+                <ns0:phone>owl-owl-owlo</ns0:phone>
+                <ns0:email>harry@magic.com</ns0:email>
+                <ns0:link>https://potterwizard.com/</ns0:link>
+            </ns0:contact_info>
+        </ns0:person>
+    </ns0:people>
+    <ns0:dataset_base_fields object_id="dataset_core">
+        <ns0:doi>DOI0001</ns0:doi>
+        <ns0:project_id>PID001</ns0:project_id>
+        <ns0:experiement_id>EXP001</ns0:experiement_id>
+        <ns0:dataset_data_date>2026-05-27T14:54</ns0:dataset_data_date>
+        <ns0:dataset_metadata_date>2026-05-27T14:54</ns0:dataset_metadata_date>
+        <ns0:data_submitter object_id="ID_154610B3" />
+        <ns0:dataset_contact object_id="ID_E9ACF5F4" />
+        <ns0:data_provider object_id="ID_3BADDC47" />
+        <ns0:cited_authors object_id="ID_BACC2957" />
+        <ns0:dataset_title>Some magic data</ns0:dataset_title>
+        <ns0:dataset_description>All of the spells that are worth a spell</ns0:dataset_description>
+        <ns0:dataset_purpose>Magic</ns0:dataset_purpose>
+        <ns0:fair_use_request />
+        <ns0:dataset_type />
+        <ns0:dataset_data_type />
+        <ns0:mcdr>False</ns0:mcdr>
+        <ns0:default_missing_value_indicator />
+        <ns0:supplemental_information />
+    </ns0:dataset_base_fields>
+    <ns0:revisions>
+        <ns0:revision row_token="AD64F5">
+            <ns0:submitted_by__ref>ID_154610B3</ns0:submitted_by__ref>
+            <ns0:submission_date>2026-06-01</ns0:submission_date>
+            <ns0:revision_description>Initial Version</ns0:revision_description>
+        </ns0:revision>
+    </ns0:revisions>
+    <ns0:archives>
+        <ns0:archive row_token="769BD1"><ns0:archive_info><ns0:data_center__ref>ID_0A2C6BBB</ns0:data_center__ref><ns0:archival_id>AID001</ns0:archival_id><ns0:dataset_URL>https://archive.org</ns0:dataset_URL><ns0:metadata_URL>https://metadata.org</ns0:metadata_URL></ns0:archive_info></ns0:archive></ns0:archives>
+</ns0:dataset_metadata>

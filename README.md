@@ -13,3 +13,5 @@ A few of the components are organized into a demo app in app.py. It should run f
 ide run button after the component library is generated.
 
 The more elaborate "wizard" style app in in wizard.py.
+
+I used xsd_combine.py to create the XSD file that drives the component generation.

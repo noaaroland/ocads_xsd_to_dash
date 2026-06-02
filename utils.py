@@ -1,34 +1,116 @@
-import xml.etree.ElementTree as ET
 import os
+import xml.etree.ElementTree as ET
 
-# Path to temporary XML file
+# Constant Configuration Elements
 TEMP_XML_FILE = "temporary_file.xml"
 NS_URL = "https://ncei.noaa.gov/ocads/v4.6"
 
-# This will become a call to cache the data to redis, the xml_file will be the redis key.
-def save_existing(key, root):
-    updated_xml_str = ET.tostring(root, encoding='unicode', method='xml')
-    with open(key, 'w', encoding='utf-8') as f:
-        f.write(updated_xml_str)
 
-# This should become a call to read to redis using the passed in key
 def read_existing(key):
-    if os.path.exists(key):
-        with open(key, 'r', encoding='utf-8') as f:
-            raw_xml = f.read()
-            root = ET.fromstring(raw_xml)
+    """Safely reads or initializes a clean namespaced OCADS XML root node tracking file."""
+    if not os.path.exists(key) or os.path.getsize(key) == 0:
+        root = ET.Element(f"{{{NS_URL}}}dataset_metadata")
+        # Ensure initial empty structural pools are present
+        ET.SubElement(root, f"{{{NS_URL}}}people")
+        ET.SubElement(root, f"{{{NS_URL}}}organizations")
+
+        ET.register_namespace('', NS_URL)
+        tree = ET.ElementTree(root)
+        tree.write(key, encoding='utf-8', xml_declaration=True)
+        return root
+
+    try:
+        tree = ET.parse(key)
+        return tree.getroot()
+    except Exception:
+        # Fallback reset if file becomes corrupted or un-parseable
+        root = ET.Element(f"{{{NS_URL}}}dataset_metadata")
+        return root
+
+
+def save_existing(key, root):
+    """
+    🎯 THE FIX: Normalizes every element tag to the default namespace,
+    completely stripping out spurious 'ns0' prefixes before writing to disk.
+    """
+    # 1. Iterate through every node in the tree and force it into the clean default namespace
+    for elem in root.iter():
+        if elem.tag and not elem.tag.startswith("{"):
+            elem.tag = f"{{{NS_URL}}}{elem.tag}"
+        elif elem.tag and "}" in elem.tag:
+            local_tag = elem.tag.split("}")[-1]
+            elem.tag = f"{{{NS_URL}}}{local_tag}"
+
+    # 2. Register an explicit blank string to map directly to the OCADS default namespace
+    ET.register_namespace('', NS_URL)
+
+    # 3. Stream cleanly out to disk
+    tree = ET.ElementTree(root)
+    tree.write(key, encoding='utf-8', xml_declaration=True)
+
+
+def get_all_entities_from_xml(xml_file_path, target_collection, root_node=None):
+    """
+    Namespace-agnostic tree scanner that loops through ALL collection instances
+    to guarantee rowData is fully populated. Accepts an optional in-memory root_node
+    to safely bypass disk-read race conditions during save lifecycles.
+    """
+    # 🎯 THE FIX: Use the active in-memory tree if passed, bypassing the disk lock completely
+    if root_node is not None:
+        root = root_node
     else:
-        # Fallback to creating a fresh root document if file doesn't exist
-        root = ET.Element("dataset_metadata", {
-            "xmlns": "https://ncei.noaa.gov/ocads/v4.6",
-            "metadata_version": "v4.6"
-        })
-    return root
+        try:
+            tree = ET.parse(xml_file_path)
+            root = tree.getroot()
+        except Exception:
+            return []
+
+    results = []
+    element_tag = "person" if target_collection == "people" else "organization"
+
+    for node in root.iter():
+        tag_clean = node.tag.split('}')[-1]
+        if tag_clean == target_collection:
+            for item in node:
+                raw_tag = item.tag.split('}')[-1] if '}' in item.tag else item.tag
+                if raw_tag != element_tag:
+                    continue
+
+                obj_id = item.get("object_id", "")
+                display_name = ""
+                first_name = ""
+                last_name = ""
+                org_name = ""
+
+                for child in item.iter():
+                    tag_local = child.tag.split('}')[-1]
+                    if tag_local == "first" and child.text:
+                        first_name = child.text.strip()
+                    elif tag_local == "last" and child.text:
+                        last_name = child.text.strip()
+                    elif tag_local in ["organization_name", "name"] and child.text and not display_name:
+                        org_name = child.text.strip()
+
+                if first_name or last_name:
+                    display_name = f"{last_name}, {first_name}".strip(", ")
+                elif org_name:
+                    display_name = org_name
+                else:
+                    display_name = f"Unnamed Record ({obj_id})"
+
+                results.append({
+                    "object_id": obj_id,
+                    "name": display_name
+                })
+
+    return results
 
 
-def get_all_entities_from_xml(xml_file_path, target_collection):
-    import xml.etree.ElementTree as ET
-
+def get_variables_from_xml(xml_file_path):
+    """
+    Crawls the variables collection pool in the XML document and aggregates polymorphic
+    parameter entries into clean, standardized rows for the Variable Matrix control table.
+    """
     try:
         tree = ET.parse(xml_file_path)
         root = tree.getroot()
@@ -36,66 +118,17 @@ def get_all_entities_from_xml(xml_file_path, target_collection):
         return []
 
     rows = []
-    element_tag = "person" if target_collection == "people" else "organization"
 
-    # 🔗 {*} matches ANY namespace prefix or lack thereof seamlessly
-    collection_node = root.find(f".//{{*}}{target_collection}")
-    if collection_node is None:
-        return rows
+    # Locate the root variables node container using a safe wildcard strategy
+    variables_node = None
+    for node in root.iter():
+        if node.tag.split('}')[-1] == "variables":
+            variables_node = node
+            break
 
-    entity_nodes = collection_node.findall(f"./{{*}}{element_tag}")
-
-    for entity in entity_nodes:
-        obj_id = entity.get("object_id")
-        # Where the fallback placeholder is initialized:
-        display_name = f"Unknown {element_tag.title()} (#{obj_id})"
-
-        if target_collection == "people":
-            # Direct child lookup using namespace-agnostic wildcards
-            name_node = entity.find("./{*}name")
-            if name_node is not None:
-                first = name_node.find("./{*}first")
-                last = name_node.find("./{*}last")
-
-                first_text = first.text.strip() if first is not None and first.text else ""
-                last_text = last.text.strip() if last is not None and last.text else ""
-                if first_text or last_text:
-                    display_name = f"{first_text} {last_text}".strip()
-        else:
-            # Route organization name elements cleanly
-            org_def = entity.find("./{*}organization_definition")
-            name_node = org_def.find("./{*}name") if org_def is not None else entity.find("./{*}name")
-            if name_node is not None and name_node.text:
-                display_name = name_node.text.strip()
-
-        rows.append({
-            "object_id": obj_id,
-            "name": display_name
-        })
-
-    return rows
-
-def get_variables_from_xml(xml_file_path):
-    """
-    Crawls the variables collection pool in the XML document and aggregates polymorphic
-    parameter entries into clean, standardized rows for the Variable Matrix control table.
-    """
-    import xml.etree.ElementTree as ET
-    from utils import read_existing
-
-    try:
-        root = read_existing(xml_file_path)
-    except Exception:
-        return []
-
-    rows = []
-
-    # Locate the root variables node container
-    variables_node = root.find(".//{*}variables")
     if variables_node is None:
         return rows
 
-    # The dictionary matching polymorphic XSD choice tags back to readable titles
     tag_display_names = {
         "basic": "Basic Column",
         "observed": "Standard Observed",
@@ -106,9 +139,7 @@ def get_variables_from_xml(xml_file_path):
         "co2_discrete": "CO2: Discrete Sample"
     }
 
-    # Loop through every child element inside the collection pool, regardless of its specific tag choice
     for var_element in variables_node:
-        # Strip namespace wrapper brackets if present to get the raw string tag name
         raw_tag = var_element.tag.split("}")[-1] if "}" in var_element.tag else var_element.tag
         if raw_tag not in tag_display_names:
             continue
@@ -117,12 +148,10 @@ def get_variables_from_xml(xml_file_path):
         column_header = f"Unnamed Axis (#{obj_id})"
         unit_label = "Unspecified"
 
-        # Deep lookup the column key header name within minimum_variable_fields
         col_node = var_element.find(".//{*}dataset_variable_name")
         if col_node is not None and col_node.text:
             column_header = col_node.text.strip()
 
-        # Lookup the measurement units attribute values
         unit_node = var_element.find(".//{*}units")
         if unit_node is not None and unit_node.text:
             unit_label = unit_node.text.strip()
@@ -141,12 +170,11 @@ def get_variables_from_xml(xml_file_path):
     return rows
 
 
-def get_form_data_from_xml(xml_file_path, complex_type):
+def get_form_data_from_xml(xml_file_path, base_xpath_target):
     """
-    Recursively crawls an XML node matching a complex_type name and flattens all
-    leaf element text nodes into a dictionary for form value hydration.
+    🎯 THE FIX: Namespace-resilient layout path evaluator that scans for saved
+    primitive parameters using absolute structural tag matching trajectories.
     """
-    import xml.etree.ElementTree as ET
     try:
         tree = ET.parse(xml_file_path)
         root = tree.getroot()
@@ -154,13 +182,28 @@ def get_form_data_from_xml(xml_file_path, complex_type):
         return {}
 
     data = {}
-    # Find the target complexType block using a namespace wildcard
-    node = root.find(f".//{{*}}{complex_type}")
-    if node is not None:
-        # Loop through every element inside this block's subtree
-        for child in node.iter():
-            tag_clean = child.tag.split("}")[-1] if "}" in child.tag else child.tag
-            # If it's a leaf node containing text, capture it
+    target_steps = [step for step in base_xpath_target.split('/') if step]
+
+    # Trace nodes by parsing tag segments sequentially, ignoring outer namespace strings
+    current_nodes = [root]
+    for step in target_steps:
+        next_nodes = []
+        for node in current_nodes:
+            for child in node:
+                child_tag = child.tag.split('}')[-1]
+                if child_tag == step:
+                    next_nodes.append(child)
+        current_nodes = next_nodes
+        if not current_nodes:
+            break
+
+    if current_nodes:
+        target_node = current_nodes[0]
+        for child in target_node:
+            child_tag = child.tag.split('}')[-1]
             if len(child) == 0 and child.text:
-                data[tag_clean] = child.text.strip()
+                data[child_tag] = child.text.strip()
+            elif child.get("object_id"):
+                data[f"{child_tag}__ref"] = child.get("object_id")
+
     return data

@@ -34,33 +34,36 @@ class MetadataRefSelector(html.Div):
         except Exception:
             initial_rows = []
 
-        # 🎯 THE HYDRATION FIX: Look up if an existing selection lives in the XML scratchpad
+        # 🎯 THE HYDRATION FIX: Use path-based navigation to look up existing XML selections
         existing_id = ""
         selected_rows = []
         try:
             root = read_existing(TEMP_XML_FILE)
-            # Find the parent block using namespace wildcards
-            parent_node = root.find(f".//{{*}}{parent_complex_type}")
+
+            # Split the parent path by slashes and build a namespace-qualified lookup path
+            steps = [f"{{{NS_URL}}}{step}" for step in parent_complex_type.split('/') if step]
+            search_xpath = "./" + "/".join(steps)
+
+            parent_node = root.find(search_xpath)
             if parent_node is not None:
-                # Isolate the exact reference pointer element child
-                ref_node = parent_node.find(f"./{{*}}{ref_field_name}")
+                # Locate the specific reference pointer child element
+                ref_node = parent_node.find(f"./{{{NS_URL}}}{ref_field_name}")
                 if ref_node is not None:
                     existing_id = ref_node.get("object_id", "")
 
-            # If an active ID exists, locate the exact row dict matching that constraint
             if existing_id:
                 selected_rows = [row for row in initial_rows if row['object_id'] == existing_id]
         except Exception:
-            pass  # Fail gracefully if the file is empty or missing on primary init
+            pass
 
         layout = [
             html.Div([
                 html.Label(grid_title, className='fw-bold text-dark mb-2 d-inline-block'),
-                # Hydrate the hidden input state seamlessly on page load
+                # 🎯 THE FIX: Changed 'complex-type' to 'xpath' to align with the new schema configuration
                 dcc.Input(
-                    id={'type': 'primitive-input', 'complex-type': parent_complex_type, 'field': f"{ref_field_name}__ref", 'instance': instance_id},
+                    id={'type': 'primitive-input', 'xpath': parent_complex_type, 'field': f"{ref_field_name}__ref", 'instance': instance_id},
                     type='text',
-                    value=existing_id,  # ✅ Seeded state
+                    value=existing_id,
                     style={'display': 'none'}
                 )
             ]),
@@ -69,7 +72,7 @@ class MetadataRefSelector(html.Div):
                 id={'type': 'ref-grid', 'field_name': self.ref_field_name, 'instance': self.instance_id},
                 columnDefs=column_defs,
                 rowData=initial_rows,
-                selectedRows=selected_rows,  # ✅ AG Grid will automatically check this row on mount!
+                selectedRows=selected_rows,
                 dashGridOptions={"rowSelection": "single", "popupParent": {"className": "root"}},
                 className="ag-theme-alpine"
             ),

@@ -5,6 +5,8 @@ associated with the project I installed the following packages:
 - dash-ag-grid
 - flask
 
+See the requirements.txt file for more details.
+
 You can install packages in Intellij IDEA from File -> Project Structure -> Platform Settings -> Packages -> + button -> Search for package -> Install package
 
 ## Getting Started
